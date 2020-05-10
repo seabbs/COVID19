@@ -213,4 +213,4 @@ gi_sd <- sqrt(Savetheta[,2])
 # Save results 
 gi <- data.frame(mean = gi_mean, 
                  sd = gi_sd)
-saveRDS(gi, "gi_sd")
+saveRDS(gi, "gi.rds")
