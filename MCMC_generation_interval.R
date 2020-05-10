@@ -1,6 +1,7 @@
 
 
 # Update parameters from: https://annals.org/aim/fullarticle/2762808/incubation-period-coronavirus-disease-2019-covid-19-from-publicly-reported
+# Note this estimation process does not account for uncertainty in the incubation period
 incubation_shape <- 5.807
 incubation_scale <- 0.948
   
@@ -140,10 +141,10 @@ SerialInterval   <- Time[IsContributorToLikel] - Time[Network[IsContributorToLik
 P <- posterior()
 AcceptedP <- P
 
-NRuns <- 300000
+NRuns <- 3000000
 NUpdate <- length(IsContributorToLikel)
-Burnin <- 50000
-Thinning<-20
+Burnin <- 500000
+Thinning<-200
 SaveP <- numeric()
 SaveNetwork <- matrix(nrow=NCases,ncol=(NRuns-Burnin)/Thinning)
 Savetheta <- matrix(nrow=(NRuns-Burnin)/Thinning,ncol=(1+length(theta))) 
@@ -206,9 +207,10 @@ proc.time() - ptm
 median(Savetheta[,1], na.rm = T); quantile(Savetheta[,1], c(0.025, 0.5, 0.975)) # mean GI
 median(sqrt(Savetheta[,2]), na.rm = T); quantile(sqrt(Savetheta[,2]), c(0.025, 0.5, 0.975)) # sd GI
 median(sqrt(Savetheta[,5]), na.rm=T); quantile(sqrt(Savetheta[,5]), c(0.025, 0.5, 0.975)) # sd SI
-
 gi_mean <- Savetheta[,1]
-saveRDS(gi_mean, "gi_mean.rds")
+gi_sd <- sqrt(Savetheta[,2])
 
-gi_sd <- Savetheta[,2]
-saveRDS(gi_sd, "gi_sd.rds")
+# Save results 
+gi <- data.frame(mean = gi_mean, 
+                 sd = gi_sd)
+saveRDS(gi, "gi_sd")
