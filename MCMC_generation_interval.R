@@ -1,5 +1,6 @@
 
 
+# Update parameters from: https://annals.org/aim/fullarticle/2762808/incubation-period-coronavirus-disease-2019-covid-19-from-publicly-reported
 incubation_shape <- 5.807
 incubation_scale <- 0.948
   
@@ -11,7 +12,7 @@ incubation_sd <- sqrt(incubation_mean * incubation_scale)
 ## DATA ##
 ##########
 
-rm(list = ls())
+
 
 ### DATA UPDATED 27/02/2020
 
