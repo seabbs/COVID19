@@ -131,10 +131,10 @@ SerialInterval   <- Time[IsContributorToLikel] - Time[Network[IsContributorToLik
 P <- posterior()
 AcceptedP <- P
 
-NRuns <- 3000000
+NRuns <- 300000
 NUpdate <- length(IsContributorToLikel)
-Burnin <- 500000
-Thinning<-200
+Burnin <- 50000
+Thinning<-20
 SaveP <- numeric()
 SaveNetwork <- matrix(nrow=NCases,ncol=(NRuns-Burnin)/Thinning)
 Savetheta <- matrix(nrow=(NRuns-Burnin)/Thinning,ncol=(1+length(theta))) 
@@ -198,72 +198,8 @@ median(Savetheta[,1], na.rm = T); quantile(Savetheta[,1], c(0.025, 0.5, 0.975)) 
 median(sqrt(Savetheta[,2]), na.rm = T); quantile(sqrt(Savetheta[,2]), c(0.025, 0.5, 0.975)) # sd GI
 median(sqrt(Savetheta[,5]), na.rm=T); quantile(sqrt(Savetheta[,5]), c(0.025, 0.5, 0.975)) # sd SI
 
+gi_mean <- Savetheta[,1]
+saveRDS(gi_mean, "gi_mean.rds")
 
-#####################
-## SERIAL INTERVAL ##
-
-par(mfrow=c(1,1))
-n = 1000000
-inc1=rgamma(n,shape=5.2^2/(2.8^2),rate = 5.2/(2.8^2))
-inc2=rgamma(n,shape=5.2^2/(2.8^2),rate = 5.2/(2.8^2))
-hist(inc1); hist(inc2)
-xg=rgamma(n,shape=5.20^2/1.72^2,rate=5.20/1.72^2)
-hist(xg)
-mean(xg)
-xs=xg+inc1-inc2
-hist(xs)
-mean(xs); quantile(xs, c(0.025,0.5,0.975))
-sd(xs)
-
-# Proportion pre-symptomatic transmission
-
-n=1000
-
-inc2=rgamma(n,shape=5.2^2/(2.8^2),rate = 5.2/(2.8^2))
-
-ci.fxn <- function(mean.gi.sample, var.gi.sample){
-  xg.sample <- rgamma(n,shape=mean.gi.sample^2/var.gi.sample,rate=mean.gi.sample/var.gi.sample)
-  mean(xg.sample<inc2)  
-}
-
-distr.p <- c()
-Nresamples <- nrow(Savetheta)
-progressbar <- txtProgressBar(min = 0, max = Nresamples, style = 3)
-for (k in 1:Nresamples){
-  set.seed(k*245+98)
-  m <- Savetheta[k,1] 
-  v <- Savetheta[k,2] 
-  distr.p <- c(distr.p, ci.fxn(m, v))
-  setTxtProgressBar(progressbar, k)
-}
-close(progressbar)
-
-quantile(distr.p, c(0.025, 0.5, 0.975))
-
-## Calculating R0
-
-Time <- c(1,1,3,4,5,4,4,4,1,7,6,8,8,10,3,10,10,9,5,13,10,4,8,12,16,8,1,3,13,10,7,10,4,10,14,9,10,12,12,10,11,16,17,12,14,18,15,18,21,21,10,23,22,21,18,19,17,20,21,14,9,20,10,22,14,12,21,20,23,21,20,23,15,27,20,8,15,25,25,27,14,20,3)
-
-EpiCurve <- data.frame(table(Time))
-I        <- EpiCurve$Freq[1:which(EpiCurve$Freq==max(EpiCurve$Freq))] # incidence curve (exponential phase)
-plot(I, type="l")
-
-t = 1:length(I)
-
-growth.rate <- lm(log(I) ~ t)
-r <- coef(growth.rate)[2]
-
-distr.r <- c()
-Nresamples <- nrow(Savetheta)
-progressbar <- txtProgressBar(min = 0, max = Nresamples, style = 3)
-for (j in 1:Nresamples){
-  set.seed(j*245+98)
-  m <- Savetheta[j,1] 
-  v <- Savetheta[j,2]    
-  distr.r <- c(distr.r, exp(r*m-0.5*r^2*v))
-  setTxtProgressBar(progressbar, j)
-}
-close(progressbar)
-
-
-quantile(distr.r, c(0.025, 0.5, 0.975))
+gi_sd <- Savetheta[,2]
+saveRDS(gi_sd, "gi_sd.rds")
