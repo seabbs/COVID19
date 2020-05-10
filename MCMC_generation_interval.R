@@ -1,4 +1,12 @@
 
+
+incubation_shape <- 5.807
+incubation_scale <- 0.948
+  
+#shape * scale = mean
+incubation_mean <- incubation_shape * incubation_scale
+#mean * scale = var
+incubation_sd <- sqrt(incubation_mean * incubation_scale)
 ##########
 ## DATA ##
 ##########
@@ -124,7 +132,7 @@ for(i in 1:length(IsContributorToLikel)){
 }
 AcceptedNetwork <- Network
 
-AcceptedTheta=theta <- c(1, 1, 5.2, 2.8^2) 
+AcceptedTheta=theta <- c(1, 1, incubation_mean, incubation_sd^2) 
 
 SerialInterval   <- Time[IsContributorToLikel] - Time[Network[IsContributorToLikel]] # serial interval
 
